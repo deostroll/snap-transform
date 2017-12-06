@@ -1,0 +1,26 @@
+{
+  "name": "snap-transform",
+  "authors": [
+    "deostroll <deostroll@gmail.com>"
+  ],
+  "description": "small poc about svg transformations",
+  "main": "",
+  "keywords": [
+    "snap",
+    "svg"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "Snap.svg": "snap.svg#^0.5.1",
+    "jquery": "^3.2.1",
+    "snaptoolkit": "https://rawgit.com/ibrierley/snaptoolkit/master/snaptoolkit.js"
+  }
+}
