@@ -31,8 +31,8 @@ $(function(){
   });
 
   var create = (x, y) => {
-
-    return canvas.circle(x, y, 3).attr({
+    var pt = canvas.getLocalPoint(x, y);
+    return canvas.circle(pt.x, pt.y, 3).attr({
       class: 'drawing',
       fill: 'blue'
     });
