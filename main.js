@@ -1,10 +1,27 @@
 var dbg;
 var canvas;
 var s;
+var dot;
+
+Snap.plugin(function(Snap, Element, Paper){
+  Element.prototype.getLocalPoint = function(x, y) {
+    var node = this.node;
+    var svg = this.paper.node;
+    var offset = svg.getBoundingClientRect();
+    var { a, b, c, d, e, f } = node.getScreenCTM();
+    var { left , top } = offset;
+    return {
+      x: (d * (x - e + left) - c * (y - f + top) ) / ( a*d - b*c ),
+      y: (b * (x - e + left) - a * (y - f + top) ) / ( b*c - a*d )
+    }
+  };
+
+});
+
 $(function(){
 	s = Snap(650, 550);
   canvas = s.group();
-  var dot;
+  // var dot;
   $('#create').click(()=>{
     if(dot) {
       var { cx, cy } = dot.attr();
@@ -29,20 +46,14 @@ $(function(){
       // var cp = canvas.getCursorPoint(x,y);
       // console.log(pt);
       console.log('input:', {x, y});
-      var pt = canvas.globalToLocal(canvas.createPoint(x,y));
-      console.log(pt);
-      console.log(canvas.getTransformedBB());
-      // console.log(canvas.transformedBoundingBox());
-      var svgRect = canvas.transformedBoundingBox();
-      var bbox = canvas.getBBox();
-      dbg.markRect(bbox);
-      // dbg.markRect(svgRect);
+      var pt = canvas.getLocalPoint(x,y);
       canvas.circle(pt.x, pt.y, 3)
         .attr({
-          class: 'debug',
-          fill: 'green',
-          opacity: 0.5
-        })
+          fill:'green',
+          opacity: 0.5,
+          class: 'debug'
+        });
+
     }
   });
   s.paper.click(function(e) {
@@ -101,6 +112,7 @@ $(function(){
     },
 
     markRect(svgRect) {
+      console.log(svgRect);
       canvas.paper.rect(svgRect.x, svgRect.y, svgRect.width, svgRect.height)
         .attr({
           fill:'none',
@@ -108,9 +120,30 @@ $(function(){
           'stroke-dasharray': '5 5',
           class: 'debug'
         })
+    },
+
+    markEl(el) {
+      var bbox = el.getBBox();
+      console.log(bbox);
+      this.markRect(bbox);
     }
   };
+
+  create(100, 200);
+  create(200,100);
+  create(300,150);
 
 
 
 });
+
+function makeAbsoluteContext(element, svgDocument) {
+  return function(x,y) {
+    var offset = svgDocument.getBoundingClientRect();
+    var matrix = element.getScreenCTM();
+    return {
+      x: (matrix.a * x) + (matrix.c * y) + matrix.e - offset.left,
+      y: (matrix.b * x) + (matrix.d * y) + matrix.f - offset.top
+    };
+  };
+}
