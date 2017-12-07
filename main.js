@@ -16,6 +16,19 @@ Snap.plugin(function(Snap, Element, Paper){
     }
   };
 
+  Element.prototype.getAbsolutePoint = function(x,y) {
+    var node = this.node;
+    var svg = this.paper.node;
+    var offset = svg.getBoundingClientRect();
+    var { a, b, c, d, e, f } = node.getScreenCTM();
+    var { left , top } = offset;
+
+    return {
+      x: (a * x) + (c * y) + e - left,
+      y: (b * x) + (d * y) + f - top
+    };
+  }
+
 });
 
 $(function(){
@@ -26,7 +39,9 @@ $(function(){
     if(dot) {
       var { cx, cy } = dot.attr();
       var [x , y] = [cx, cy].map(i => parseInt(i));
-      create(x, y);
+      var p = dot.getAbsolutePoint(x,y);
+      console.log(p);
+      create(p.x, p.y);
     }
   });
 
@@ -62,13 +77,16 @@ $(function(){
     var x = e.offsetX;
     var y = e.offsetY;
     if (e.target === node) {
+      // var p = canvas.getAbsolutePoint(x , y);
+      var p = paper.getAbsolutePoint(x, y);
       if (!dot) {
-        dot = canvas.paper.circle(x, y, 3).attr({ 'fill' : 'red' });
+
+        dot = canvas.paper.circle(p.x, p.y, 3).attr({ 'fill' : 'red' });
       }
       else {
         dot.animate({
-          cx: x,
-          cy: y
+          cx: p.x,
+          cy: p.y
         }, 100)
       }
     }
@@ -133,8 +151,8 @@ $(function(){
   create(200,100);
   create(300,150);
 
-
-
+  canvas.paper.addMouseWheelHandler();
+  var paper = canvas.paper;
 });
 
 function makeAbsoluteContext(element, svgDocument) {
